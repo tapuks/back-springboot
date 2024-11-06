@@ -1,6 +1,8 @@
 package com.example.app.services;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,6 +30,34 @@ public class CategoriaServiceImplementation implements ICategoriaService {
             response.setMetadata("Respuesta OK", "200", "Respuesta exitosa");
         } catch (Exception e) {
             response.setMetadata("Respuesta ERROR", "500", "Error al consultar categorias");
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+
+        }
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ResponseEntity<CategoriaResponseRest> searchById(Long id) {
+        CategoriaResponseRest response = new CategoriaResponseRest();
+        List<Categoria> categorias = new ArrayList<>();
+
+        try {
+            Optional<Categoria> categoria = categoriaDao.findById(id);
+            if (categoria.isPresent()) {
+                categorias.add(categoria.get());
+                response.getCategoriaResponse().setCategorias(categorias);
+                response.setMetadata("Respuesta OK", "200", "Respuesta exitosa");
+
+            } else {
+                response.setMetadata("Respuesta ERROR", "404", "Categoria no encontrada");
+                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            }
+
+        } catch (Exception e) {
+            response.setMetadata("Respuesta ERROR", "500", "Error al consultar categoria por id");
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
 
         }
