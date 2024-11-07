@@ -10,8 +10,10 @@ import com.example.app.response.CategoriaResponseRest;
 import com.example.app.services.ICategoriaService;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
@@ -38,6 +40,14 @@ public class CategoriaRestController {
     @PostMapping("/categorias")
     public ResponseEntity<CategoriaResponseRest> createCategory(@RequestBody Categoria category) {
         ResponseEntity<CategoriaResponseRest> response = service.create(category);
+        return response;
+
+    }
+
+    @PutMapping("/categorias/{id}")
+    public ResponseEntity<CategoriaResponseRest> updateCategory(@RequestBody Categoria category,
+            @PathVariable Long id) {
+        ResponseEntity<CategoriaResponseRest> response = service.update(category, id);
         return response;
 
     }
