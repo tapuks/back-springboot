@@ -66,4 +66,29 @@ public class CategoriaServiceImplementation implements ICategoriaService {
 
     }
 
+    @Override
+    @Transactional
+    public ResponseEntity<CategoriaResponseRest> create(Categoria categoria) {
+        CategoriaResponseRest response = new CategoriaResponseRest();
+        List<Categoria> categorias = new ArrayList<>();
+
+        try {
+            Categoria categoriaSave = categoriaDao.save(categoria);
+            if (categoriaSave != null) {
+                categorias.add(categoriaSave);
+                response.getCategoriaResponse().setCategorias(categorias);
+                response.setMetadata("Respuesta OK", "200", "Categoria creada exitosamente");
+            } else {
+                response.setMetadata("Respuesta ERROR", "400", "No se pudo crear la categoria");
+                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            }
+        } catch (Exception e) {
+            response.setMetadata("Respuesta ERROR", "500", "Error al crear categoria");
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+
+        }
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+
+    }
 }
