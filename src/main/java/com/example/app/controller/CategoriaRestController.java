@@ -9,8 +9,8 @@ import com.example.app.model.Categoria;
 import com.example.app.response.CategoriaResponseRest;
 import com.example.app.services.ICategoriaService;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -48,6 +48,13 @@ public class CategoriaRestController {
     public ResponseEntity<CategoriaResponseRest> updateCategory(@RequestBody Categoria category,
             @PathVariable Long id) {
         ResponseEntity<CategoriaResponseRest> response = service.update(category, id);
+        return response;
+
+    }
+
+    @DeleteMapping("/categorias/{id}")
+    public ResponseEntity<CategoriaResponseRest> deleteCategory(@PathVariable Long id) {
+        ResponseEntity<CategoriaResponseRest> response = service.delete(id);
         return response;
 
     }
