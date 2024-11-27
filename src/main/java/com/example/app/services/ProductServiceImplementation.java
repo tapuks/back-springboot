@@ -128,4 +128,96 @@ public class ProductServiceImplementation implements IProductService {
 
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public ResponseEntity<productResponseRest> deleteById(Long id) {
+        productResponseRest response = new productResponseRest();
+
+        try {
+
+            this.productDao.deleteById(id);
+            response.setMetadata("Respuesta OK", "200", "Producto eliminado");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+
+        } catch (Exception e) {
+            response.setMetadata("Respuesta ERROR", "500", "Error al eliminar producto");
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ResponseEntity<productResponseRest> getProducts() {
+        productResponseRest response = new productResponseRest();
+        List<Product> products = new ArrayList<>();
+
+        try {
+            products = (List<Product>) this.productDao.findAll();
+            products.stream().forEach((p) -> {
+                byte[] imageDescompressed = util.decompressZLib(p.getPhoto());
+                p.setPhoto(imageDescompressed);
+            });
+
+            response.getProductResponse().setProducts(products);
+            response.setMetadata("Respuesta OK", "200", "Respuesta exitosa");
+
+        } catch (Exception e) {
+            response.setMetadata("Respuesta ERROR", "500", "Error al consultar productos");
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+
+    }
+
+    @Override
+    @Transactional
+    public ResponseEntity<productResponseRest> updateProduct(Product product, Long id) {
+        productResponseRest response = new productResponseRest();
+        List<Product> list = new ArrayList<>();
+
+        try {
+            Optional<Categoria> categoria = this.categoriaDao.findById(product.getCategoria().getId());
+
+            if (categoria.isPresent()) {
+                product.setCategoria(categoria.get());
+            } else {
+
+                response.setMetadata("Respuesta ERROR", "404", "Categoria no encontrada");
+                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            }
+
+            Optional<Product> productSearch = this.productDao.findById(id);
+
+            if (productSearch.isPresent()) {
+
+                productSearch.get().setName(product.getName());
+                productSearch.get().setPrice(product.getPrice());
+                productSearch.get().setCantidad(product.getCantidad());
+                productSearch.get().setCategoria(product.getCategoria());
+                productSearch.get().setPhoto(product.getPhoto());
+                Product productUpdate = this.productDao.save(productSearch.get());
+                if (productUpdate != null) {
+                    list.add(productUpdate);
+                    response.getProductResponse().setProducts(list);
+                    response.setMetadata("Respuesta OK", "200", "Producto actualizado con exito");
+
+                } else {
+                    response.setMetadata("Respuesta ERROR", "400", "Error al actualizar producto");
+                    return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+                }
+
+            } else {
+                response.setMetadata("Respuesta ERROR", "404", "Producto no encontrado");
+                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            }
+
+        } catch (Exception e) {
+            response.setMetadata("Respuesta ERROR", "500", "Error 500");
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<>(response, HttpStatus.OK);
+
+    }
+
 }

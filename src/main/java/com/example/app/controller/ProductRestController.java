@@ -5,7 +5,9 @@ import java.io.IOException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -55,6 +57,38 @@ public class ProductRestController {
     @GetMapping("/products/filter/{name}")
     public ResponseEntity<productResponseRest> searchProductByName(@PathVariable String name) {
         ResponseEntity<productResponseRest> response = service.searchByName(name);
+        return response;
+    }
+
+    @DeleteMapping("/products/{id}")
+    public ResponseEntity<productResponseRest> deleteProductById(@PathVariable Long id) {
+        ResponseEntity<productResponseRest> response = service.deleteById(id);
+        return response;
+    }
+
+    @GetMapping("/products")
+    public ResponseEntity<productResponseRest> getAllProducts() {
+        ResponseEntity<productResponseRest> response = service.getProducts();
+        return response;
+    }
+
+    @PutMapping("/products/{id}")
+    public ResponseEntity<productResponseRest> updateProduct(
+            @RequestParam("photo") MultipartFile photo,
+            @RequestParam("name") String name,
+            @RequestParam("price") Double price,
+            @RequestParam("cantidad") Integer cantidad,
+            @RequestParam("categoryId") Long categoryId,
+            @PathVariable Long id) throws IOException {
+
+        Product product = new Product();
+        product.setName(name);
+        product.setPrice(price);
+        product.setCantidad(cantidad);
+        product.setPhoto(util.compressZLib(photo.getBytes()));
+
+        ResponseEntity<productResponseRest> response = service.updateProduct(product, id);
+
         return response;
     }
 

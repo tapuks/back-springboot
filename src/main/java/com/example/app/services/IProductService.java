@@ -12,4 +12,10 @@ public interface IProductService {
 
     public ResponseEntity<productResponseRest> searchByName(String name);
 
+    public ResponseEntity<productResponseRest> deleteById(Long id);
+
+    public ResponseEntity<productResponseRest> getProducts();
+
+    public ResponseEntity<productResponseRest> updateProduct(Product product, Long id);
+
 }
