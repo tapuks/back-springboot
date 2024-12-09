@@ -87,7 +87,7 @@ public class ProductRestController {
         product.setCantidad(cantidad);
         product.setPhoto(util.compressZLib(photo.getBytes()));
 
-        ResponseEntity<productResponseRest> response = service.updateProduct(product, id);
+        ResponseEntity<productResponseRest> response = service.updateProduct(product, categoryId, id);
 
         return response;
     }
