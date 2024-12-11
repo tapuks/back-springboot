@@ -1,5 +1,7 @@
 package com.example.app.controller;
 
+import java.io.IOException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -8,6 +10,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.app.model.Categoria;
 import com.example.app.response.CategoriaResponseRest;
 import com.example.app.services.ICategoriaService;
+
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletResponse;
+import util.CategoryExcelExporter;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -59,6 +65,21 @@ public class CategoriaRestController {
         ResponseEntity<CategoriaResponseRest> response = service.delete(id);
         return response;
 
+    }
+
+    @GetMapping("/categorias/export/excel")
+    public void exportToExcel(HttpServletResponse response) throws IOException {
+        response.setContentType("application/octet-stream");
+        String headerkey = "Content-Disposition";
+        String headerValue = "attachment; filename=categories.xlsx";
+        response.setHeader(headerkey, headerValue);
+
+        ResponseEntity<CategoriaResponseRest> categoryResponse = service.search();
+
+        CategoryExcelExporter excelExporter = new CategoryExcelExporter(
+                categoryResponse.getBody().getCategoriaResponse().getCategorias());
+
+        excelExporter.export(response);
     }
 
 }

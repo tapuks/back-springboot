@@ -17,6 +17,8 @@ import com.example.app.model.Product;
 import com.example.app.response.productResponseRest;
 import com.example.app.services.IProductService;
 
+import jakarta.servlet.http.HttpServletResponse;
+import util.ProductExcelExporter;
 import util.util;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -90,6 +92,21 @@ public class ProductRestController {
         ResponseEntity<productResponseRest> response = service.updateProduct(product, categoryId, id);
 
         return response;
+    }
+
+    @GetMapping("/products/export/excel")
+    public void exportToExcel(HttpServletResponse response) throws IOException {
+        response.setContentType("application/octet-stream");
+        String headerkey = "Content-Disposition";
+        String headerValue = "attachment; filename=products.xlsx";
+        response.setHeader(headerkey, headerValue);
+
+        ResponseEntity<productResponseRest> productResponse = service.getProducts();
+
+        ProductExcelExporter excelExporter = new ProductExcelExporter(
+                productResponse.getBody().getProductResponse().getProducts());
+
+        excelExporter.export(response);
     }
 
 }
